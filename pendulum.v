@@ -2,7 +2,7 @@ Require Import Reals.
 From mathcomp Require Import ssreflect ssrfun ssrbool ssrnat eqtype choice seq.
 From mathcomp Require Import fintype bigop ssralg ssrnum finmap interval ssrint.
 From mathcomp Require Import matrix zmodp.
-From mathcomp Require Import boolp reals Rstruct Rbar classical_sets posnum.
+From mathcomp Require Import boolp reals Rstruct classical_sets posnum.
 From mathcomp Require Import topology normedtype landau derive.
 Require Import lasalle.
 
@@ -12,6 +12,7 @@ Unset Printing Implicit Defensive.
 Import GRing.Theory Num.Def Num.Theory.
 
 Local Open Scope classical_set_scope.
+Local Open Scope ring_scope.
 
 Notation "p ..[ i ]" := (p 0 (inZp i)) (at level 10).
 
@@ -58,8 +59,8 @@ have comp_lin : linear (fun q : 'rV[R]_n.+1 => q..[i] : R^o).
 have comp_cont : continuous (fun q : 'rV[R]_n.+1 => q..[i] : R^o).
   move=> q A [_/posnumP[e] Ae] /=; apply/locallyP; exists e%:num => //.
   by move=> r /(_ ord0) /(_ (inZp i)) /Ae.
-apply: DiffDef; first exact: (@linear_differentiable _ _ (Linear comp_lin)).
-by rewrite (@diff_lin _ _ (Linear comp_lin)).
+apply: DiffDef; first exact: (@linear_differentiable _ _ _ (Linear comp_lin)).
+by rewrite (@diff_lin _ _ _ (Linear comp_lin)).
 Qed.
 
 Global Instance is_diff_component_comp (V : normedModType R) n
@@ -87,7 +88,7 @@ Global Instance is_derive_component (V : normedModType R) n
   is_derive x v f df -> is_derive x v (fun q => (f q)..[i] : R^o) (df..[i]).
 Proof.
 move=> dfx.
-have diff_f : is_diff (0 : R^o) (fun h => f (h *: v + x)) ( *:%R^~ df ).
+have diff_f : is_diff (0 : [the normedModType _ of R^o]) (fun h => f (h *: v + x)) ( *:%R^~ df ).
   have /derivable1P/derivable1_diffP fdrvbl : derivable f x v by [].
   by apply: DiffDef => //; rewrite diff1E // derive1E -deriveE' derive_val.
 apply: DeriveDef; first exact/derivable1P/derivable1_diffP.
@@ -96,7 +97,7 @@ Qed.
 
 Lemma V_continuous : continuous V.
 Proof.
-by move=> ?; apply: (@differentiable_continuous _ [normedModType R of R^o]).
+by move=> ?; apply: (@differentiable_continuous _ _ [normedModType R of R^o]).
 Qed.
 
 Variable k0 : R.
